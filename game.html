@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kupa The Game</title>
+
+<style>
+@font-face {font-family:"TNR";src:url("times new roman.ttf");}
+@font-face {font-family:"TNR-Bold";src:url("times new roman bold.ttf");}
+
+body{
+margin:0;
+font-family:Arial;
+background:url('bg.jpg');
+background-size:cover;
+}
+
+.container{
+max-width:420px;
+margin:auto;
+padding:10px;
+position:relative;
+}
+
+.chat{
+background:white;
+color:black;
+padding:15px;
+border-radius:20px;
+border:2px solid #4da6ff;
+min-height:130px;
+font-family:"TNR";
+}
+
+.name{
+font-weight:bold;
+margin-bottom:6px;
+color:#4da6ff;
+}
+
+.characters{
+display:flex;
+justify-content:center;
+gap:20px;
+}
+
+.char{
+    height:28vh;
+    max-height:220px;
+    object-fit:contain;
+}
+
+button{
+width:100%;
+margin:8px 0;
+padding:12px;
+border:none;
+border-radius:20px;
+background:#ddd;
+font-family:"TNR";
+}
+
+.music-btn{
+position:absolute;
+right:10px;
+top:180px;
+font-size:22px;
+background:white;
+border-radius:50%;
+width:45px;
+height:45px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:20px;
+border-radius:20px;
+width:80%;
+max-width:300px;
+text-align:center;
+z-index:999;
+font-family:"TNR";
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="chat">
+<div class="name">Alysa 💙</div>
+<div id="chat"></div>
+</div>
+
+<div class="characters">
+<img src="MC.png" class="char">
+<img src="Cewe 1.png" class="char">
+</div>
+
+<div class="music-btn" onclick="toggleMusic()">🎵</div>
+
+<audio id="bgm" src="music.mp3" loop></audio>
+<audio id="notif" src="notif.mp3"></audio>
+
+<div id="choices"></div>
+<button id="nextBtn" style="display:none;">Lanjutkan</button>
+
+</div>
+
+<script>
+
+let score=0,current=0,sub=0
+let waitingReply=false
+
+const chat=document.getElementById("chat")
+const choices=document.getElementById("choices")
+const nextBtn=document.getElementById("nextBtn")
+const notif=document.getElementById("notif")
+
+function playNotif(){
+notif.currentTime=0
+notif.play()
+}
+
+/* 🔥 DRAMA LU (UTUH) */
+const scenes=[
+
+{
+dialog:["Aku tanya jujur ya...","Kamu akhir-akhir ini berubah banget","Sebenernya kamu masih serius sama aku ga?"],
+choices:[
+{text:"Iya, aku serius kok",val:7,reply:"Aku harap itu bener ya..."},
+{text:"Masih jalanin aja sih",val:3,reply:"Jadi aku cuma opsi buat kamu?"},
+{text:"Kenapa sih kamu nanya gitu?",val:0,reply:"Karena kamu berubah... dan kamu malah defensif"}
+]
+},
+
+{
+dialog:["Kamu kemarin kemana?","Chat aku ga dibales sama sekali"],
+choices:[
+{text:"Jujur aku lagi sama temen",val:7,reply:"Yaudah… makasih udah jujur"},
+{text:"Lagi sibuk aja",val:3,reply:"Sibuk tapi bisa online ya?"},
+{text:"Emang harus laporan?",val:0,reply:"Oh… jadi aku ga sepenting itu ya"}
+]
+},
+
+{
+dialog:["Aku ngerasa kamu makin cuek","Aku salah ga sih ngerasa gini?"],
+choices:[
+{text:"Engga, aku emang lagi kurang perhatian",val:7,reply:"Aku cuma butuh kamu sadar itu..."},
+{text:"Ga juga, biasa aja",val:3,reply:"Aku ngerasainnya beda..."},
+{text:"Perasaan kamu aja",val:0,reply:"Kamu selalu nyalahin perasaan aku"}
+]
+},
+
+{
+dialog:["Kamu masih sayang aku ga sih?"],
+choices:[
+{text:"Masih banget",val:7,reply:"Aku pengen percaya itu..."},
+{text:"Ya masih lah",val:3,reply:"Jawaban kamu ga meyakinkan..."},
+{text:"Ngapain nanya gitu?",val:0,reply:"Karena aku butuh kepastian... bukan dihindarin"}
+]
+},
+
+{
+dialog:["Kamu ada yang lain ya?","Jujur aja"],
+choices:[
+{text:"Engga, cuma kamu",val:7,reply:"Aku pegang omongan kamu"},
+{text:"Ya ga gitu juga",val:3,reply:"Jawaban kamu makin bikin curiga"},
+{text:"Kamu terlalu overthinking",val:0,reply:"Kamu ga pernah jawab, selalu nyalahin aku"}
+]
+},
+
+{
+dialog:["Aku penting ga buat kamu?"],
+choices:[
+{text:"Penting banget",val:7,reply:"Aku harap kamu buktiin itu"},
+{text:"Penting kok",val:3,reply:"Ga kerasa pentingnya..."},
+{text:"Biasa aja",val:0,reply:"Oh… oke 🙂"}
+]
+},
+
+{
+dialog:["Kenapa kamu berubah sih?"],
+choices:[
+{text:"Aku lagi banyak masalah",val:7,reply:"Kenapa ga cerita ke aku?"},
+{text:"Ga berubah kok",val:3,reply:"Aku ngerasainnya beda..."},
+{text:"Kamu aja yang berubah",val:0,reply:"Kamu balik nyalahin aku lagi"}
+]
+},
+
+{
+dialog:["Kamu bakal ninggalin aku ga?"],
+choices:[
+{text:"Engga, aku tetep disini",val:7,reply:"Aku percaya... untuk sekarang"},
+{text:"Ga tau",val:3,reply:"Aku takut denger jawaban itu"},
+{text:"Ya bisa aja",val:0,reply:"Kamu serius ngomong gitu?"}
+]
+},
+
+{
+dialog:["Aku capek ngerti kamu terus"],
+choices:[
+{text:"Maaf ya",val:7,reply:"Aku cuma pengen dihargai..."},
+{text:"Yaudah",val:3,reply:"Kamu ga berusaha sama sekali"},
+{text:"Ya jangan capek",val:0,reply:"Kamu ga ngerti aku sama sekali"}
+]
+},
+
+{
+dialog:["Aku masih bertahan loh sampai sekarang"],
+choices:[
+{text:"Makasih ya udah bertahan",val:7,reply:"Aku cuma pengen kamu sadar..."},
+{text:"Ya...",val:3,reply:"Jawaban kamu kosong banget"},
+{text:"Terus?",val:0,reply:"Kamu dingin banget sekarang"}
+]
+},
+
+{
+dialog:["Kamu bakal berubah ga?"],
+choices:[
+{text:"Iya aku bakal berubah",val:7,reply:"Aku tunggu ya..."},
+{text:"Coba aja dulu",val:3,reply:"Aku ga yakin..."},
+{text:"Engga",val:0,reply:"Yaudah… cukup"}
+]
+},
+
+{
+dialog:["Aku udah hampir nyerah"],
+choices:[
+{text:"Jangan, aku masih mau perbaiki",val:7,reply:"Ini terakhir aku percaya"},
+{text:"Yaudah",val:3,reply:"Kamu ga nahan aku sama sekali"},
+{text:"Terserah",val:0,reply:"Oke… aku ngerti sekarang"}
+]
+},
+
+{
+dialog:["Ini terakhir aku tanya...","Kamu beneran sayang aku?"],
+choices:[
+{text:"Iya, aku sayang kamu",val:7,reply:"Aku harap ini nyata"},
+{text:"Ya...",val:3,reply:"Aku ragu..."},
+{text:"Engga",val:0,reply:"Kenapa ga dari dulu?"}
+]
+},
+
+{
+dialog:["Aku udah kasih semuanya ke kamu"],
+choices:[
+{text:"Aku hargain itu",val:7,reply:"Aku cuma mau dihargai balik"},
+{text:"Iya tau",val:3,reply:"Cuma tau doang?"},
+{text:"Terus kenapa?",val:0,reply:"Aku nyesel..."}
+]
+},
+
+{
+dialog:["Terakhir...","Kita lanjut atau selesai?"],
+choices:[
+{text:"Lanjut",val:7,reply:"Aku harap kali ini beneran..."},
+{text:"Liat nanti",val:3,reply:"Aku ga yakin lagi"},
+{text:"Selesai",val:0,reply:"Yaudah… makasih ya 🙂"}
+]
+}
+
+]
+
+function load(){
+let s=scenes[current]
+chat.innerText=s.dialog[sub]
+playNotif()
+
+choices.innerHTML=""
+
+if(sub < s.dialog.length-1){
+nextBtn.style.display="block"
+}else{
+nextBtn.style.display="none"
+
+s.choices.sort(()=>Math.random()-0.5).forEach(c=>{
+let b=document.createElement("button")
+b.innerText=c.text
+
+b.onclick=()=>{
+score+=c.val
+chat.innerText=c.reply
+choices.innerHTML=""
+waitingReply=true
+nextBtn.style.display="block"
+setTimeout(()=>playNotif(),100)
+}
+
+choices.appendChild(b)
+})
+}
+}
+
+nextBtn.onclick=()=>{
+if(waitingReply){
+waitingReply=false
+next()
+}else{
+sub++
+load()
+}
+}
+
+function next(){
+current++
+sub=0
+if(current>=scenes.length) end()
+else load()
+}
+
+function end(){
+let status=""
+let msg=""
+
+if(score<=39){
+status="PUTUS 💔"
+msg="Kupa :<br>Makasih bang udah bikin guwa putus sama dia...😭"
+}
+else if(score<=79){
+status="RAWAN ⚠️"
+msg="Kupa :<br>Makasih bang, guwa sama dia gajadi putus karena elu...."
+}
+else{
+status="LANGGENG 😏"
+msg="Kupa :<br>Alhamdulillah, aman guwa banggg!!!<br>Makasih banyak buat lu!!!!"
+}
+
+document.body.innerHTML=`
+<style>
+body{
+margin:0;
+background:url('bg.jpg');
+background-size:cover;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+.wrap{max-width:420px;width:100%;padding:20px;}
+.panel{position:relative;}
+.panel img{width:100%;}
+.scoreLabel{position:absolute;top:65%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.scoreVal{position:absolute;top:70%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.statusLabel{position:absolute;top:80%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.statusVal{position:absolute;top:88%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+</style>
+
+<div class="wrap">
+<div class="panel">
+<img src="Last.png">
+<div class="scoreLabel">Skor :</div>
+<div class="scoreVal">${score}</div>
+<div class="statusLabel">Status :</div>
+<div class="statusVal">${status}</div>
+</div>
+</div>
+
+<div class="popup">
+<p>${msg}</p>
+<button onclick="this.parentElement.remove()">OK</button>
+</div>
+`
+}
+
+function toggleMusic(){
+let bgm=document.getElementById("bgm")
+if(bgm.paused) bgm.play()
+else bgm.pause()
+}
+
+load()
+
+</script>
+
+</body>
+</html>

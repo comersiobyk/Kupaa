@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhitt si Fakboy</title>
+
+<style>
+body {
+    margin:0;
+    font-family: Arial;
+    text-align:center;
+    color:white;
+
+    background:linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+               url('bg-intro.jpg') no-repeat center;
+    background-size:cover;
+}
+
+.container {
+    padding:20px;
+    margin-top:60px;
+
+    background:rgba(0,0,0,0.5);
+    border-radius:20px;
+    width:90%;
+    max-width:360px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+/* INI YANG LU MAU */
+img {
+    width:85%;
+    max-width:320px;
+    border-radius:75px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+
+h1 {
+    margin-top:15px;
+}
+
+p {
+    font-size:14px;
+    opacity:0.9;
+}
+
+button {
+    margin-top:20px;
+    padding:15px;
+    width:85%;
+    max-width:300px;
+    font-size:18px;
+    border:none;
+    border-radius:25px;
+    background:#4da6ff;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <img src="Intro.png">
+    <h1>Kupa Si Gamau Putus..</h1>
+    <p>Selamatkan Kupa agar tidak jadi putus dengan Alysa dengan memainkan game ini!!!!</p>
+
+    <button onclick="startGame()">AYO MAIN CUKK!</button>
+</div>
+
+<script>
+function startGame(){
+    window.location.href = "game.html";
+}
+</script>
+
+</body>
+</html>
