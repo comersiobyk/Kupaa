@@ -47,9 +47,9 @@ gap:20px;
 }
 
 .char{
-    height:28vh;
-    max-height:220px;
-    object-fit:contain;
+height:28vh;
+max-height:220px;
+object-fit:contain;
 }
 
 button{
@@ -120,7 +120,7 @@ font-family:"TNR";
 
 <script>
 
-let score=0,current=0,sub=0
+let score=100,current=0,sub=0
 let waitingReply=false
 
 const chat=document.getElementById("chat")
@@ -133,141 +133,66 @@ notif.currentTime=0
 notif.play()
 }
 
-/* 🔥 DRAMA LU (UTUH) */
+function applyScore(val){
+score+=val
+if(score>100) score=100
+if(score<0) score=0
+}
+
+/* 🔥 DRAMA + DAMAGE DINAMIS */
 const scenes=[
 
 {
 dialog:["Aku tanya jujur ya...","Kamu akhir-akhir ini berubah banget","Sebenernya kamu masih serius sama aku ga?"],
 choices:[
-{text:"Iya, aku serius kok",val:7,reply:"Aku harap itu bener ya..."},
-{text:"Masih jalanin aja sih",val:3,reply:"Jadi aku cuma opsi buat kamu?"},
-{text:"Kenapa sih kamu nanya gitu?",val:0,reply:"Karena kamu berubah... dan kamu malah defensif"}
+{text:"Iya, aku serius kok",val:10,reply:"Aku harap itu bener ya..."},
+{text:"Masih jalanin aja sih",val:-5,reply:"Jadi aku cuma opsi buat kamu?"},
+{text:"Kenapa sih kamu nanya gitu?",val:-25,reply:"Karena kamu berubah... dan kamu malah defensif"}
 ]
 },
 
 {
 dialog:["Kamu kemarin kemana?","Chat aku ga dibales sama sekali"],
 choices:[
-{text:"Jujur aku lagi sama temen",val:7,reply:"Yaudah… makasih udah jujur"},
-{text:"Lagi sibuk aja",val:3,reply:"Sibuk tapi bisa online ya?"},
-{text:"Emang harus laporan?",val:0,reply:"Oh… jadi aku ga sepenting itu ya"}
-]
-},
-
-{
-dialog:["Aku ngerasa kamu makin cuek","Aku salah ga sih ngerasa gini?"],
-choices:[
-{text:"Engga, aku emang lagi kurang perhatian",val:7,reply:"Aku cuma butuh kamu sadar itu..."},
-{text:"Ga juga, biasa aja",val:3,reply:"Aku ngerasainnya beda..."},
-{text:"Perasaan kamu aja",val:0,reply:"Kamu selalu nyalahin perasaan aku"}
+{text:"Jujur aku lagi sama temen",val:10,reply:"Yaudah… makasih udah jujur"},
+{text:"Lagi sibuk aja",val:-5,reply:"Sibuk tapi bisa online ya?"},
+{text:"Emang harus laporan?",val:-30,reply:"Oh… jadi aku ga sepenting itu ya"}
 ]
 },
 
 {
 dialog:["Kamu masih sayang aku ga sih?"],
 choices:[
-{text:"Masih banget",val:7,reply:"Aku pengen percaya itu..."},
-{text:"Ya masih lah",val:3,reply:"Jawaban kamu ga meyakinkan..."},
-{text:"Ngapain nanya gitu?",val:0,reply:"Karena aku butuh kepastian... bukan dihindarin"}
+{text:"Masih banget",val:10,reply:"Aku pengen percaya itu..."},
+{text:"Ya masih lah",val:-5,reply:"Jawaban kamu ga meyakinkan..."},
+{text:"Ngapain nanya gitu?",val:-35,reply:"Karena aku butuh kepastian... bukan dihindarin"}
 ]
 },
 
 {
 dialog:["Kamu ada yang lain ya?","Jujur aja"],
 choices:[
-{text:"Engga, cuma kamu",val:7,reply:"Aku pegang omongan kamu"},
-{text:"Ya ga gitu juga",val:3,reply:"Jawaban kamu makin bikin curiga"},
-{text:"Kamu terlalu overthinking",val:0,reply:"Kamu ga pernah jawab, selalu nyalahin aku"}
-]
-},
-
-{
-dialog:["Aku penting ga buat kamu?"],
-choices:[
-{text:"Penting banget",val:7,reply:"Aku harap kamu buktiin itu"},
-{text:"Penting kok",val:3,reply:"Ga kerasa pentingnya..."},
-{text:"Biasa aja",val:0,reply:"Oh… oke 🙂"}
-]
-},
-
-{
-dialog:["Kenapa kamu berubah sih?"],
-choices:[
-{text:"Aku lagi banyak masalah",val:7,reply:"Kenapa ga cerita ke aku?"},
-{text:"Ga berubah kok",val:3,reply:"Aku ngerasainnya beda..."},
-{text:"Kamu aja yang berubah",val:0,reply:"Kamu balik nyalahin aku lagi"}
+{text:"Engga, cuma kamu",val:10,reply:"Aku pegang omongan kamu"},
+{text:"Ya ga gitu juga",val:-10,reply:"Jawaban kamu makin bikin curiga"},
+{text:"Kamu terlalu overthinking",val:-40,reply:"Kamu ga pernah jawab, selalu nyalahin aku"}
 ]
 },
 
 {
 dialog:["Kamu bakal ninggalin aku ga?"],
 choices:[
-{text:"Engga, aku tetep disini",val:7,reply:"Aku percaya... untuk sekarang"},
-{text:"Ga tau",val:3,reply:"Aku takut denger jawaban itu"},
-{text:"Ya bisa aja",val:0,reply:"Kamu serius ngomong gitu?"}
-]
-},
-
-{
-dialog:["Aku capek ngerti kamu terus"],
-choices:[
-{text:"Maaf ya",val:7,reply:"Aku cuma pengen dihargai..."},
-{text:"Yaudah",val:3,reply:"Kamu ga berusaha sama sekali"},
-{text:"Ya jangan capek",val:0,reply:"Kamu ga ngerti aku sama sekali"}
-]
-},
-
-{
-dialog:["Aku masih bertahan loh sampai sekarang"],
-choices:[
-{text:"Makasih ya udah bertahan",val:7,reply:"Aku cuma pengen kamu sadar..."},
-{text:"Ya...",val:3,reply:"Jawaban kamu kosong banget"},
-{text:"Terus?",val:0,reply:"Kamu dingin banget sekarang"}
-]
-},
-
-{
-dialog:["Kamu bakal berubah ga?"],
-choices:[
-{text:"Iya aku bakal berubah",val:7,reply:"Aku tunggu ya..."},
-{text:"Coba aja dulu",val:3,reply:"Aku ga yakin..."},
-{text:"Engga",val:0,reply:"Yaudah… cukup"}
-]
-},
-
-{
-dialog:["Aku udah hampir nyerah"],
-choices:[
-{text:"Jangan, aku masih mau perbaiki",val:7,reply:"Ini terakhir aku percaya"},
-{text:"Yaudah",val:3,reply:"Kamu ga nahan aku sama sekali"},
-{text:"Terserah",val:0,reply:"Oke… aku ngerti sekarang"}
-]
-},
-
-{
-dialog:["Ini terakhir aku tanya...","Kamu beneran sayang aku?"],
-choices:[
-{text:"Iya, aku sayang kamu",val:7,reply:"Aku harap ini nyata"},
-{text:"Ya...",val:3,reply:"Aku ragu..."},
-{text:"Engga",val:0,reply:"Kenapa ga dari dulu?"}
-]
-},
-
-{
-dialog:["Aku udah kasih semuanya ke kamu"],
-choices:[
-{text:"Aku hargain itu",val:7,reply:"Aku cuma mau dihargai balik"},
-{text:"Iya tau",val:3,reply:"Cuma tau doang?"},
-{text:"Terus kenapa?",val:0,reply:"Aku nyesel..."}
+{text:"Engga, aku tetep disini",val:10,reply:"Aku percaya..."},
+{text:"Ga tau",val:-10,reply:"Aku takut denger itu"},
+{text:"Ya bisa aja",val:-50,reply:"Kamu serius ngomong gitu?"}
 ]
 },
 
 {
 dialog:["Terakhir...","Kita lanjut atau selesai?"],
 choices:[
-{text:"Lanjut",val:7,reply:"Aku harap kali ini beneran..."},
-{text:"Liat nanti",val:3,reply:"Aku ga yakin lagi"},
-{text:"Selesai",val:0,reply:"Yaudah… makasih ya 🙂"}
+{text:"Lanjut",val:10,reply:"Aku harap kali ini beneran..."},
+{text:"Liat nanti",val:-10,reply:"Aku ga yakin lagi"},
+{text:"Selesai",val:-90,reply:"Yaudah… makasih ya 🙂"}
 ]
 }
 
@@ -290,7 +215,7 @@ let b=document.createElement("button")
 b.innerText=c.text
 
 b.onclick=()=>{
-score+=c.val
+applyScore(c.val)
 chat.innerText=c.reply
 choices.innerHTML=""
 waitingReply=true
@@ -352,9 +277,9 @@ height:100vh;
 .panel{position:relative;}
 .panel img{width:100%;}
 .scoreLabel{position:absolute;top:65%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
-.scoreVal{position:absolute;top:70%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
-.statusLabel{position:absolute;top:80%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
-.statusVal{position:absolute;top:88%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.scoreVal{position:absolute;top:72%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.statusLabel{position:absolute;top:82%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
+.statusVal{position:absolute;top:90%;left:50%;transform:translateX(-50%);color:red;font-family:"TNR-Bold";}
 </style>
 
 <div class="wrap">
